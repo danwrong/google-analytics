@@ -1,0 +1,11 @@
+CHANGELOG
+lib/google_analytics/account.rb
+lib/google_analytics/client.rb
+lib/google_analytics/profile.rb
+lib/google_analytics/user.rb
+lib/google_analytics.rb
+LICENSE
+Rakefile
+README.textile
+test/client_test.rb
+Manifest
