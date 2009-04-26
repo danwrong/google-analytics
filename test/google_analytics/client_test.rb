@@ -7,13 +7,47 @@ class ClientTest < Test::Unit::TestCase
       @client = GoogleAnalytics::Client.new('user', 'password')
     end
     
-    should 'attempt login if before API call if no auth token set'
+    should 'turn a hash into a url encoded string when encode called' do
+      res = @client.send :encode, { :thing => 12, :thong => 'something with spaces' }
+      assert_match /thing\=12/, res
+      assert_match /thong\=something\%20with\%20spaces/, res
+    end
     
-    should 'send a login request with the username and password in the body'
+    should 'send request to correct url with username and password' do
+      @client.expects(:request).with(
+        URI.parse(GoogleAnalytics::AUTH_URL),
+        :post,
+        { 
+          :Email => 'user', :Passwd => 'password', 
+          :accountType => 'GOOGLE_OR_HOSTED', :service => 'analytics' 
+        }
+      ).returns('Auth=thing')
+      
+      @client.login!
+    end
     
-    should 'make get request containing the auth header'
+    should 'raise not authorized if failed to log in' do
+      @client.expects(:request).with(
+        URI.parse(GoogleAnalytics::AUTH_URL),
+        :post,
+        { 
+          :Email => 'user', :Passwd => 'password', 
+          :accountType => 'GOOGLE_OR_HOSTED', :service => 'analytics' 
+        }
+      ).returns('fail')
+      
+      assert_raises GoogleAnalytics::NotAuthorized do
+        @client.login!
+      end
+    end
     
-    should 'make get request with the correct query string arguments'
+    should 'login if auth is not set before api_request' do
+      @client.instance_variable_set(:@auth, nil)
+      @client.expects(:login!)
+      @client.expects(:request).returns('')
+      
+      @client.api_request('/', :get, {})
+    end
   end
   
 end
