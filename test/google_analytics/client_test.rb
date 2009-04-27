@@ -13,6 +13,11 @@ class ClientTest < Test::Unit::TestCase
       assert_match /thong\=something\%20with\%20spaces/, res
     end
     
+    should 'should comma seperate arrays when encode called' do
+      res = @client.send :encode, { :thong => [:blurg, :blargh] }
+      assert_match /thong\=blurg,blargh/, res
+    end
+    
     should 'send request to correct url with username and password' do
       @client.expects(:request).with(
         URI.parse(GoogleAnalytics::AUTH_URL),

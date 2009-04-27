@@ -84,8 +84,8 @@ module GoogleAnalytics
     
     def encode(data)
       data.map do |k,v| 
-        value = v.is_a?(Array) ? v.join(',') : v
-        ("%s=%s" % [uri_encode(k), uri_encode(value)]) unless v.nil? || v.empty?
+        value = v.is_a?(Array) ? v.join(',') : v.to_s
+        ("%s=%s" % [uri_encode(k), uri_encode(value)]) unless value.empty?
       end.compact.join("&")
     end
     
