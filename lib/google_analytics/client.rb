@@ -49,6 +49,7 @@ module GoogleAnalytics
     def api_request(path, method, args)
       login! unless @auth
       url = URI.parse([BASE_URL, path].join)
+      
       resp = request(url, method, args)
       
       Nokogiri::XML(resp)
@@ -67,6 +68,8 @@ module GoogleAnalytics
       
       req['Authorization'] = "GoogleLogin auth=#{@auth}" if @auth
 
+      puts url.to_s
+      
       http = Net::HTTP.new(url.host, url.port)
       http.use_ssl = (url.port == 443)
 
@@ -80,9 +83,16 @@ module GoogleAnalytics
     protected
     
     def encode(data)
-      data.map { |k,v| "%s=%s" % [URI.encode(k.to_s), URI.encode(v.to_s)] }.join("&")
+      data.map do |k,v| 
+        value = v.is_a?(Array) ? v.join(',') : v
+        ("%s=%s" % [uri_encode(k), uri_encode(value)]) unless v.nil? || v.empty?
+      end.compact.join("&")
     end
     
+    def uri_encode(item)
+      encoded = URI.encode(item.to_s)
+      encoded.gsub(/\=/, '%3D')
+    end
   end
 
 end
